@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package kvstore;
+
+service KeyValueStore {
+  // Create a value
+  rpc Put (PutRequest) returns (PutResponse) {}
+  
+  // Retrieve a value
+  rpc Get (GetRequest) returns (GetResponse) {}
+
+  // Delete a value
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+
+  // Update a value
+  rpc Update (PutRequest) returns (PutResponse);
+
+  // Grabs all values
+  rpc ListKeys (Empty) returns (KeyListResponse);
+}
+
+message PutRequest {
+  string key = 1;
+  string value = 2;
+  int64 version = 3;
+}
+
+message PutResponse {
+  bool success = 1;    // true if saved, false if failed
+  string message = 2; 
+}
+
+message GetRequest {
+  string key = 1;
+}
+
+message GetResponse {
+  string value = 1;
+  bool found = 2;      // true if key exists, false if not found
+  int64 version = 3;     
+}
+
+message DeleteRequest {
+  string key = 1;
+}
+
+message DeleteResponse {
+  bool success = 1;
+  string message = 2;  // true if key deleted, false if failed
+}
+
+message Empty {}
+
+message KeyListResponse {
+  repeated string keys = 1;
+}

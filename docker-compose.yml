@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  storage-node-1:
+    build:
+      context: .
+      dockerfile: src/node/Dockerfile
+    volumes:
+      - ./data/node1:/data
+    networks:
+      - kv-network
+
+  storage-node-2:
+    build:
+      context: .
+      dockerfile: src/node/Dockerfile
+    volumes:
+      - ./data/node2:/data
+    networks:
+      - kv-network
+
+  storage-node-3:
+    build:
+      context: .
+      dockerfile: src/node/Dockerfile
+    volumes:
+      - ./data/node3:/data
+    networks:
+      - kv-network
+
+  storage-node-4:
+    build:
+      context: .
+      dockerfile: src/node/Dockerfile
+    volumes:
+      - ./data/node4:/data    
+    networks:
+      - kv-network
+
+  storage-node-5:
+    build:
+      context: .
+      dockerfile: src/node/Dockerfile
+    volumes:
+      - ./data/node5:/data
+    networks:
+      - kv-network
+
+  storage-node-6:
+    build:
+      context: .
+      dockerfile: src/node/Dockerfile
+    volumes:
+      - ./data/node6:/data
+    networks:
+      - kv-network
+
+  storage-node-7:
+    build:
+      context: .
+      dockerfile: src/node/Dockerfile
+    volumes:
+      - ./data/node7:/data
+    networks:
+      - kv-network
+
+  # --- GATEWAY (Update Configuration) ---
+  gateway:
+    build:
+      context: .
+      dockerfile: src/gateway/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      # ADD ALL NEW NODES HERE SEPARATED BY COMMAS
+      - STORAGE_NODE_ADDRESSES=storage-node-1:50051,storage-node-2:50051,storage-node-3:50051,storage-node-4:50051,storage-node-5:50051,storage-node-6:50051,storage-node-7:50051
+    depends_on:
+      - storage-node-1
+      - storage-node-2
+      - storage-node-3
+      - storage-node-4
+      - storage-node-5
+      - storage-node-6
+      - storage-node-7
+    networks:
+      - kv-network
+
+networks:
+  kv-network:
+    driver: bridge

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed System Monitor</title>
+
+    <style>
+        /* ===============================
+           Catppuccin Mocha Palette
+           =============================== */
+        :root {
+            --base: #1e1e2e;
+            --mantle: #181825;
+            --crust: #11111b;
+
+            --surface0: #313244;
+            --surface1: #45475a;
+            --surface2: #585b70;
+
+            --text: #cdd6f4;
+            --subtext1: #bac2de;
+            --subtext0: #a6adc8;
+
+            --lavender: #b4befe;
+            --blue: #89b4fa;
+            --sapphire: #74c7ec;
+            --sky: #89dceb;
+
+            --green: #a6e3a1;
+            --red: #f38ba8;
+            --yellow: #f9e2af;
+            --pink: #f5c2e7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.15s ease,
+                        border-color 0.15s ease,
+                        color 0.15s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(180deg, var(--crust), var(--base));
+            color: var(--text);
+            padding: 32px;
+            min-height: 100vh;
+        }
+
+        /* ===============================
+           Header
+           =============================== */
+        header {
+            max-width: 1400px;
+            margin: 0 auto 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--surface0);
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--lavender);
+            letter-spacing: -0.02em;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        #last-update {
+            font-size: 13px;
+            color: var(--subtext0);
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            background: linear-gradient(
+                180deg,
+                var(--surface1),
+                var(--surface0)
+            );
+            color: var(--text);
+            border: 1px solid var(--surface2);
+            border-radius: 6px;
+        }
+
+        button:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        /* ===============================
+           Grid Layout
+           =============================== */
+        .cluster-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ===============================
+           Node Card
+           =============================== */
+        .node-card {
+            background: linear-gradient(
+                180deg,
+                var(--mantle),
+                var(--base)
+            );
+            border: 1px solid var(--surface0);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(17, 17, 27, 0.5);
+        }
+
+        .node-card:hover {
+            border-color: var(--surface2);
+        }
+
+        .online {
+            border-left: 4px solid var(--green);
+        }
+
+        .offline {
+            border-left: 4px solid var(--red);
+        }
+
+        /* ===============================
+           Node Header
+           =============================== */
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--surface0);
+        }
+
+        .node-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .node-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-text-online {
+            color: var(--green);
+        }
+
+        .status-text-online .status-indicator {
+            background: var(--green);
+        }
+
+        .status-text-offline {
+            color: var(--red);
+        }
+
+        .status-text-offline .status-indicator {
+            background: var(--red);
+        }
+
+        /* ===============================
+           Node Body
+           =============================== */
+        .count-badge {
+            display: inline-block;
+            margin-bottom: 12px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--sky);
+            background: rgba(137, 220, 235, 0.15);
+            border: 1px solid rgba(137, 220, 235, 0.35);
+            border-radius: 6px;
+        }
+
+        .key-list {
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .key-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .key-list::-webkit-scrollbar-thumb {
+            background: var(--surface2);
+            border-radius: 4px;
+        }
+
+        .key-item {
+            padding: 6px 0;
+            font-size: 13px;
+            font-family: 'SF Mono', Monaco, monospace;
+            color: var(--subtext1);
+            border-bottom: 1px dashed var(--surface0);
+        }
+
+        .key-item:last-child {
+            border-bottom: none;
+        }
+
+        .empty-state {
+            color: var(--subtext0);
+            font-size: 13px;
+            font-style: italic;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .error-state {
+            color: var(--red);
+            text-align: center;
+            padding: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Distributed System Monitor</h1>
+        <div class="controls">
+            <div id="last-update">Waiting for data...</div>
+            <button onclick="fetchMap()">Refresh</button>
+        </div>
+    </header>
+
+    <div id="cluster-container" class="cluster-grid"></div>
+
+    <script>
+        const API_URL = 'http://51.20.142.27:8080/map';
+
+        async function fetchMap() {
+            const container = document.getElementById('cluster-container');
+            const timeLabel = document.getElementById('last-update');
+
+            try {
+                const res = await fetch(API_URL);
+                const data = await res.json();
+
+                container.innerHTML = '';
+                const sortedNodes = Object.keys(data).sort();
+
+                sortedNodes.forEach(nodeName => {
+                    const node = data[nodeName];
+                    const isOnline = node.status === 'Online';
+
+                    const statusClass = isOnline ? 'online' : 'offline';
+                    const statusTextClass = isOnline ? 'status-text-online' : 'status-text-offline';
+
+                    let bodyContent = '';
+                    if (isOnline) {
+                        const keys = node.keys || [];
+                        const keyHtml = keys.length
+                            ? keys.map(k => `<div class="key-item">${k}</div>`).join('')
+                            : `<div class="empty-state">No keys stored</div>`;
+
+                        bodyContent = `
+                            <div class="count-badge">${keys.length} ${keys.length === 1 ? 'Key' : 'Keys'}</div>
+                            <div class="key-list">${keyHtml}</div>
+                        `;
+                    } else {
+                        bodyContent = `<div class="error-state">Node Offline</div>`;
+                    }
+
+                    container.innerHTML += `
+                        <div class="node-card ${statusClass}">
+                            <div class="node-header">
+                                <div class="node-name">${nodeName.split(':')[0]}</div>
+                                <div class="node-status ${statusTextClass}">
+                                    <span class="status-indicator"></span>
+                                    ${node.status}
+                                </div>
+                            </div>
+                            <div class="node-body">${bodyContent}</div>
+                        </div>
+                    `;
+                });
+
+                timeLabel.innerText = new Date().toLocaleTimeString();
+
+            } catch (err) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; color: var(--red); padding: 40px;">
+                        Failed to connect to API
+                    </div>
+                `;
+            }
+        }
+
+        fetchMap();
+        setInterval(fetchMap, 1000);
+    </script>
+</body>
+</html>

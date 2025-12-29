@@ -1,0 +1,13 @@
+# Ignore the C++ build folder (so we compile fresh in Docker)
+src/node/build
+
+# Ignore Python cache
+**/__pycache__
+**/*.pyc
+
+# Ignore Git history
+.git
+.gitignore
+
+# Ignore Mac system files
+.DS_Store

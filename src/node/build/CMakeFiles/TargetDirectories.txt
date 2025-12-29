@@ -1,0 +1,3 @@
+/Users/mrshmelloww/Desktop/distributed-kv-store/src/node/build/CMakeFiles/kv_server.dir
+/Users/mrshmelloww/Desktop/distributed-kv-store/src/node/build/CMakeFiles/edit_cache.dir
+/Users/mrshmelloww/Desktop/distributed-kv-store/src/node/build/CMakeFiles/rebuild_cache.dir
