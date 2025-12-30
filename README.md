@@ -42,7 +42,7 @@ Built for the AWS Ecosystem, the system utilizes modern cloud primitives for dep
 
 ## System Evolution and Performance Metrics
 
-### Optimization Results: 136 to 412 Requests Per Second
+### Optimization Results: 136 to 417 Requests Per Second
 During initial benchmarking, the system used standard JSON serialization over HTTP/1.1 for inter-node communication, peaking at approximately 136 requests per second under heavy load.
 
 By re-engineering the internal backbone to use gRPC and Protocol Buffers, the system achieved a significant performance breakthrough:
